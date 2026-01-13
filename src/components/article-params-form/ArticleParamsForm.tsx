@@ -2,12 +2,14 @@ import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
 import { useState, useRef, useEffect } from 'react';
 import { Text } from 'src/ui/text';
+import clsx from 'clsx';
 
 import styles from './ArticleParamsForm.module.scss';
 import {
 	ArticleStateType,
 	contentWidthArr,
 	fontColors,
+	backgroundColors,
 	fontFamilyOptions,
 	fontSizeOptions,
 	OptionType,
@@ -15,6 +17,7 @@ import {
 import { Select } from 'src/ui/select';
 import { RadioGroup } from 'src/ui/radio-group';
 import { Separator } from 'src/ui/separator';
+import { useCloseOnOutsideClickOrEsc } from 'src/ui/UseCloseOnOutsideClickOrEsc';
 // Типизация пропсов формы
 type FormState = {
 	state: ArticleStateType;
@@ -42,7 +45,14 @@ export const ArticleParamsForm = (props: FormState) => {
 	const [isOpen, setIsOpen] = useState(false); // Состояние открытия формы
 	const sideBarRef = useRef<HTMLElement>(null); // Реф формы
 	const [formState, setFormState] = useState<ArticleStateType>(props.state); // Состояние формы
-
+	// Функция закрытия сайдбара
+	const close = (): void | undefined => setIsOpen(false);
+	// Хук закрытия сайдбара по нажатию вне области или
+	useCloseOnOutsideClickOrEsc({
+		isOpenElement: isOpen,
+		elementRef: sideBarRef,
+		onClose: close,
+	});
 	// Функция обновления одного из элементов состояния
 	const update = (key: keyof ArticleStateType, value: OptionType) => {
 		setFormState((prev) => ({ ...prev, [key]: value }));
@@ -95,7 +105,7 @@ export const ArticleParamsForm = (props: FormState) => {
 				}}
 			/>
 			<aside
-				className={isOpen ? styles.container_opened : styles.container}
+				className={clsx(styles.container, isOpen && styles.container_opened)}
 				ref={sideBarRef}>
 				<form
 					className={styles.form}
@@ -124,7 +134,7 @@ export const ArticleParamsForm = (props: FormState) => {
 					{renderSelect({
 						title: 'Цвет фона',
 						name: 'backgroundColor',
-						options: fontColors,
+						options: backgroundColors,
 					})}
 					{renderSelect({
 						title: 'Ширина контента',
